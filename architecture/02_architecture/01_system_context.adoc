@@ -1,0 +1,87 @@
+= System Context
+
+[NOTE]
+The GoO+ solution architecture facilitates the secure and transparent tracking, trading, and settlement of renewable energy certificates, along with the auto-generation and management of Power Purchase Agreements (PPAs). It leverages the Hedera Hashgraph network and other key components to create an end-to-end system for managing GoOs and PPAs.
+// tag::architect[]
+[plantuml,target=images/level1,format=svg]
+----
+
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context diagram for the GoO+ Application
+
+System_Ext(data, "Procurement / Logistics / Installation Data", "")
+Person(producer, "Producer / Buyer (Offtaker)", "Auto generation of PPA agreements and PPA transfers")
+Person(buyers, "Buyers", "")
+Person(sellers, "Sellers", "")
+
+System_Ext(sm, "Smart Meter", "")
+
+System(fe, "Front-End \n Application", "")
+
+Boundary(c0, "GoO+ Application") {
+    System(be, "Restful API", "Handles secure transactions and integrations")
+}
+
+System_Ext(tradingMarket, "Trading Marketplace", "Facilitates energy trading using GoO+ tokens")
+
+System_Ext(mainnet, "Hedera Main-Net", "Distributed ledger for secure transactions")
+System_Ext(mirror, "Mirror-Net", "")
+SystemDb(offChainData, "Off-Chain Data Storage", "")
+
+System_Ext(token, "GoO+ token", "")
+
+' Relationships
+Rel(data, fe, "")
+Rel(sm, fe, "Signed data, ZKP computation")
+Rel_L(fe, producer, "")
+Rel(fe, be, "")
+Rel(be, fe, "")
+Rel_L(be, token, "")
+Rel(token, tradingMarket, "")
+Rel_U(buyers, tradingMarket, "")
+Rel_U(sellers, tradingMarket, "")
+
+' Aligning elements to the right
+Rel_R(be, mainnet, "Commits transactions to Hedera network")
+
+Rel_D(mainnet, mirror, "")
+Rel_D(mirror, mainnet, "")
+
+Rel_R(be, offChainData, "Stores historical and audit data")
+
+@enduml
+
+
+----
+
+== Hedera Hashgraph Network
+[NOTE]
+The foundation of the GoO+ platform is the Hedera Hashgraph network, which provides a secure, distributed ledger for recording and verifying transactions. Hedera's consensus service ensures fast and energy-efficient transaction processing, while its token service (HTS) enables the creation and management of tokenized GoOs and PPAs
+
+== Smart Meter Integration
+[NOTE]
+IoT-enabled smart meters are integrated into the system to collect real-time energy production data from renewable energy sources. This data is securely transmitted to the Hedera network through a data gateway.
+
+== Application Frontend
+[NOTE]
+The platform offers user-friendly interfaces for different stakeholders. Producers can monitor their energy production and manage GoOs through a dedicated portal. Buyers can browse, purchase, and verify GoOs in a marketplace. An admin dashboard provides regulatory oversight and system monitoring capabilities.
+
+== Application Backend
+[NOTE]
+A RESTful API enables seamless integration with external systems, allowing for data exchange and interoperability with other platforms.
+
+== Data Storage
+[NOTE]
+Key metadata, such as energy type, production date, and location, is stored on the Hedera network using its file service. Larger datasets, including IoT readings and compliance documents, are securely stored off-chain.
+
+== Smart Contracts
+[NOTE]
+Smart contracts automate key processes on the platform. An issuance contract automatically creates GoO tokens based on verified energy production data. A trading contract facilitates peer-to-peer (P2P) GoO token trading on the Hedera network. A payment contract escrows stablecoins and releases payments upon successful token transfers. Additionally, a PPA contract automates the generation and management of PPAs, including terms, pricing, and execution.
+
+== Stablecoin Payment Layer
+[NOTE]
+The platform supports various stablecoins, including USDC and EURC, for seamless and transparent payments. Wallet integration allows users to securely store and manage their stablecoins, facilitating efficient transactions within the GoO+ marketplace.
